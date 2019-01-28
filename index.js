@@ -1,7 +1,9 @@
 const express = require('express')
 const cors = require('cors')
+const bodyParser = require('body-parser')
 const app = express()
 
+app.use(bodyParser.json())
 app.use(express.static('build'))
 app.use(cors())
 
@@ -30,12 +32,19 @@ app.get('/api/winners', (req, res) => {
 })
 
 app.post('/api/count', (req, res) => {
+    const body = req.body
+    console.log(body.name)
     count.number = count.number + 1
 
     let newCount = count.number
     if (newCount % 100 === 0) {
         count.winner = true
         count.message = "Winner!"
+        if (body.name === undefined) {
+            winners.concat('Unknown')
+        } else {
+          winners.concat(req.name)
+        }
     } else {
         count.winner = false
         count.message = "No win"

@@ -19,15 +19,15 @@ let winners = [
         name: 'Sanna'}
 ]
 
-app.get('api/count', (req, res) => {
+app.get('/api/count', (req, res) => {
     res.json(count)
 })
 
-app.get('api/winners', (req, res) => {
+app.get('/api/winners', (req, res) => {
     res.json(winners)
 })
 
-app.post('api/count', (req, res) => {
+app.post('/api/count', (req, res) => {
     count.number = count.number + 1
     res.json(count)
 })

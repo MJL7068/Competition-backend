@@ -33,7 +33,12 @@ app.get('/api/winners', (req, res) => {
 
 app.post('/api/count', (req, res) => {
     const body = req.body
-    console.log(body.name)
+    if (body.name === undefined) {
+        console.log("noname" )
+    } else {
+        console.log(body.name)
+    }
+
     count.number = count.number + 1
 
     let newCount = count.number

@@ -6,7 +6,9 @@ app.use(express.static('build'))
 app.use(cors())
 
 let count = {
-    number: 0
+    number: 85,
+    winner: false,
+    message: 'No win'
 }
 
 let winners = [
@@ -29,6 +31,16 @@ app.get('/api/winners', (req, res) => {
 
 app.post('/api/count', (req, res) => {
     count.number = count.number + 1
+
+    let newCount = count.number
+    if (newCount % 100 === 0) {
+        count.winner = true
+        count.message = "Winner!"
+    } else {
+        count.winner = false
+        count.message = "No win"
+    }
+
     res.json(count)
 })
 

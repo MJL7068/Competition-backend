@@ -1,31 +1,31 @@
 const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
+const uuid = require('node-uuid')
 const app = express()
+
 
 app.use(bodyParser.json())
 app.use(express.static('build'))
 app.use(cors())
 
 let count = {
-    number: 95,
-    winner: false,
-    message: 'No win'
+    number: 495
 }
 
 let winners = [
-    {
-        id: 1,
-        name: 'Matti'
+    {   
+        id: "2d9a6274-1c5b-4d11-abf4-fd090034ed9d",
+        name: 'Matti',
     },
     {
-        id: 2,
+        id: "c363e405-2d59-4d2a-b61f-eef3565cc76c",
         name: 'Sanna'}
 ]
 
-app.get('/api/count', (req, res) => {
+/*app.get('/api/count', (req, res) => {
     res.json(count)
-})
+})*/
 
 app.get('/api/winners', (req, res) => {
     res.json(winners)
@@ -33,30 +33,33 @@ app.get('/api/winners', (req, res) => {
 
 app.post('/api/count', (req, res) => {
     const body = req.body
-    if (body.name === undefined) {
-        console.log("noname" )
-    } else {
-        console.log(body.name)
-    }
-
     count.number = count.number + 1
-
+    const name = (body.name === "" ? "Tuntematon" : body.name)
     let newCount = count.number
-    if (newCount % 100 === 0) {
-        count.winner = true
-        count.message = "Winner!"
-        if (body.name === undefined) {
-            winners = winners.concat('Unknown')
-        } else {
-            winners = winners.concat(req.name)
-        }
+    if (newCount % 500 === 0) {
+        res.json(handleWin("Voitit suuren palkinnon!", name, true))   
+    } else if (newCount % 200 === 0) {
+        res.json(handleWin("Voitit keskikokoisen palkinnon!", name, true))
+    } else if (newCount % 100 === 0) {
+        res.json(handleWin("Voitit pienen palkinnon!", name, true))
     } else {
-        count.winner = false
-        count.message = "No win"
+        res.json(handleWin("Ei voittoa", name, false))
+    }
+})
+
+const handleWin = (message, name, winning) => {
+    const note = {
+        winner: winning,
+        message: message
     }
 
-    res.json(count)
-})
+    if (winning) winners = winners.concat({id: generateID(), name: name})
+    return note
+}
+
+const generateID = () => {
+    return uuid.v4()
+}
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {

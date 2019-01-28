@@ -18,10 +18,6 @@ let winners = [
         name: 'Sanna'}
 ]
 
-app.get('/', (req, res) => {
-    res.send('<h1>Hello world</h1>')
-})
-
 app.get('api/count', (req, res) => {
     res.json(count)
 })

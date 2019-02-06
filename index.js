@@ -1,45 +1,38 @@
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config()
+}
+const fs = require('fs')
 const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
-const uuid = require('node-uuid')
+const Winner = require('./models/winner')
 const app = express()
 
+let count = require('./data/count.json')
 
 app.use(bodyParser.json())
 app.use(express.static('build'))
 app.use(cors())
 
-let count = {
-    number: 1
-}
-
-let winners = [
-    {   
-        id: "2d9a6274-1c5b-4d11-abf4-fd090034ed9d",
-        name: 'Matti',
-        prize_size: 'keskikokoinen',
-    },
-    {
-        id: "c363e405-2d59-4d2a-b61f-eef3565cc76c",
-        name: 'Sanna',
-        prize_size: 'suuri'
-    }
-]
-
 app.get('/api/winners', (req, res) => {
-    res.json(winners)
+    Winner.find({}).then(winners => {
+        res.json(winners.map(winner => winner.toJSON()))
+    })
 })
 
 app.post('/api/count', (req, res) => {
     const body = req.body
-    count.number = count.number + 1
+    count = count + 1
+    fs.writeFileSync('./data/count.json', count, 'utf8', (err) => {
+        if (err) console.log(err)
+    })
+
     const name = ((body.name === "" || body.name === undefined) ? "Tuntematon" : body.name)
-    let newCount = count.number
-    if (newCount % 500 === 0) {
+    if (count % 500 === 0) {
         res.json(handleWin("Voitit suuren palkinnon!", "large", name, true))   
-    } else if (newCount % 200 === 0) {
+    } else if (count % 200 === 0) {
         res.json(handleWin("Voitit keskikokoisen palkinnon!", "medium", name, true))
-    } else if (newCount % 100 === 0) {
+    } else if (count % 100 === 0) {
         res.json(handleWin("Voitit pienen palkinnon!", "small", name, true))
     } else {
         res.json(handleWin("Ei voittoa", null, name, false))
@@ -47,7 +40,7 @@ app.post('/api/count', (req, res) => {
 })
 
 const getClicksToWin = () => {
-    return 100 - (count.number % 100)
+    return 100 - (count % 100)
 }
 
 const handleWin = (message, prize_size, name, winning) => {
@@ -58,12 +51,23 @@ const handleWin = (message, prize_size, name, winning) => {
         clicks_to_win: getClicksToWin(),
     }
 
-    if (winning) winners = winners.concat({id: generateID(), name: name, prize_size: prize_size})
-    return note
-}
+    if (winning) {
+        const winner = new Winner({
+            name: name,
+            prizeSize: prize_size,
+            date: new Date()
+        })
 
-const generateID = () => {
-    return uuid.v4()
+        winner.save()
+          .then(savedWinner => {
+              console.log(savedWinner)
+          })
+          .catch(error => {
+              console.log(error.message)
+          })
+    }
+    
+    return note
 }
 
 const PORT = process.env.PORT || 3001

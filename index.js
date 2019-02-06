@@ -1,6 +1,4 @@
-if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config()
-}
+require('dotenv').config()
 const fs = require('fs')
 const express = require('express')
 const cors = require('cors')
@@ -70,7 +68,7 @@ const handleWin = (message, prize_size, name, winning) => {
     return note
 }
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })

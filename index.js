@@ -57,8 +57,7 @@ const handleWin = (message, prize_size, name, winning) => {
         })
 
         winner.save()
-          .then(savedWinner => {
-              console.log(savedWinner)
+          .then(() => {
           })
           .catch(error => {
               console.log(error.message)
